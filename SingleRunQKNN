@@ -1,0 +1,175 @@
+# Import section
+from sklearn.metrics import jaccard_score
+import sys
+from qiskit.visualization import plot_histogram
+from traceback import print_tb
+from qiskit_quantum_knn.encoding import analog
+import numpy as np
+import qiskit as qk
+from qiskit.utils import QuantumInstance
+from qiskit_quantum_knn.qknn import QKNeighborsClassifier
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+import glob
+import time
+
+'''Parameter'''
+#Input and reading section 
+# train_mask_path = "C:\\Users\Admin\Documents/Quantum/mask/Lite Mask Output/train"
+train_mask_path = "..\mask\Lite Mask Output\train"
+valid_mask_Path = "C:\\Users\Admin\Documents/Quantum/mask/Lite Mask Output/valid"
+Image_Train_Path = "C:\\Users\Admin\Documents\Quantum\Lite Apple Image/train"
+Image_Valid_Path = "C:\\Users\Admin\Documents\Quantum\Lite Apple Image/valid"
+
+#Creating QKNN Section
+Shot = 500 #number of iteration by quantum executor
+Neighbors = 16 #need to be optimize
+
+#Input data 
+N_Train = 32 
+N_val = 2
+
+# My Function
+def Mask_Reading(PATH):
+    mask_array = []  # array which'll hold the images
+    # path = f'C:\\Users\\Ahmad Zaki\\Documents\\Catatan\\1. TA AZAM\\Code Program\\mask\\Mask Output'
+    files = glob.glob(str(PATH)+"/*.jpg")
+    # Loop to store the mask to mask array
+    for myFile in files:
+        # 0 untuk gray form, sedangkan 1 untuk color form1
+        mask = cv2.imread(myFile, 0)
+        # Store them in Black and White 0-1 form
+        (thresh, BWmask) = cv2.threshold(mask, 127, 1, cv2.THRESH_BINARY)
+        mask_array.append(BWmask)  # append each image to array
+
+    # this will print the channel number, size, and number of images in the file
+    print('mask_array shape:', np.array(mask_array).shape)
+    return mask_array
+
+def Reading_Images(PATH):
+    image_array = []  # array which'll hold the images
+    files = glob.glob(str(PATH)+"\*.jpg")
+    # Loop to store the mask to mask array
+    for myFile in files:
+        # 0 untuk gray form, sedangkan 1 untuk color form
+        image = cv2.imread(myFile, 1)
+        image_array.append(image)  # append each image to array
+
+    # this will print the channel number, size, and number of images in the file
+    print('mask_array shape:', np.array(image_array).shape)
+    return image_array
+
+def Image_Flattening(Image_Array):
+    RGB_point = np.array(Image_Array)
+    NGambar, H, W, C = RGB_point.shape
+    Flatten_Array = RGB_point.reshape(NGambar*H*W, 3)
+    print("Ukuran sebelum flatten = ", RGB_point.shape,
+          "\nSesudah di flatten = ", Flatten_Array.shape)
+    return Flatten_Array
+
+'''Bagian Reading Label/Mask untuk Ground Truth'''
+
+train_mask = Mask_Reading(train_mask_path)
+train_labels = np.array(train_mask)
+train_label = train_labels.flatten()
+print("shape before flattening", train_labels.shape,
+      'Shape after labeling show how many points', train_label.shape)
+
+valid_mask = Mask_Reading(valid_mask_Path)
+valid_labels = np.array(valid_mask)
+valid_label = valid_labels.flatten()
+print("shape before flattening", valid_labels.shape,
+      'Shape after labeling show how many points', valid_label.shape)
+
+
+'''Bagian Reading Image '''
+Image_Train = Reading_Images(Image_Train_Path)
+x_train = Image_Flattening(Image_Train)
+
+Image_Valid = Reading_Images(Image_Valid_Path)
+x_valid = Image_Flattening(Image_Valid)
+
+
+'''Encoding Section For Input Data to Quantum Circuit'''
+
+
+def encode_pad(data):
+
+    # Change the dtype of data to be float for safety encoding
+    data = data.astype(float)
+    # Encoding
+    encoded_data = analog.encode(data)
+
+    # Padding data to be 2^n dimensional with n=2
+    encoded_data = np.pad(encoded_data,
+                          pad_width=((0, 0), (0, 1)),
+                          mode='constant',
+                          constant_values=(0))
+    print("Shape after encoded and paded ", encoded_data.shape)
+    return encoded_data
+
+
+encoded_x_train = encode_pad(x_train)
+encoded_x_valid = encode_pad(x_valid)
+
+backend = qk.BasicAer.get_backend('qasm_simulator')
+instance = QuantumInstance(backend, shots= Shot)
+
+'''QKNKN Section'''
+# initialising the qknn model for single running for testing purposes
+
+qknn = QKNeighborsClassifier(
+    n_neighbors= Neighbors,
+    quantum_instance=instance
+)
+
+Start = time.time()
+AutoCircuit = qknn.construct_circuits(
+    data_to_predict=encoded_x_valid[:N_val], training_data=encoded_x_train[:N_Train])
+end = time.time() - Start
+print("Time for creating the circuits", end)
+
+AutoCircuitResult = qknn.get_circuit_results(AutoCircuit)
+Auto_all_counts = AutoCircuitResult.get_counts()
+MyAutoFidelities = qknn.get_all_fidelities(AutoCircuitResult)
+
+predicted_label = qknn.majority_vote(
+    labels=train_label[:N_Train],
+    fidelities=MyAutoFidelities
+)
+print("Predicted label : ",predicted_label)
+
+
+'''Evaluation Section'''
+def DICE_COE(Mask, Prediction):
+    # THE MASK READING MUST BE ON 0-1 TYPE Color
+    intersect = np.sum(Mask*Prediction)
+    union = np.sum(Mask) + np.sum(Prediction)
+    print(intersect, union)
+    dice = (2 * intersect) / union
+    dice = np.mean(dice)
+    dice = round(dice, 3)  # 3 number behind comma for easy reading
+    return dice
+
+dice_value = DICE_COE(predicted_label, valid_label[:N_val])
+jaccard_value = jaccard_score(predicted_label, valid_label[:N_val])
+print("Dice Coefficient Value", dice_value)
+print("Jacccard Index Value",jaccard_value )
+
+
+# Check Variable
+
+
+def sizeof_fmt(num, suffix='B'):
+    ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
+    for unit in ['', 'Ki', 'Mi', 'Gi', 'Ti', 'Pi', 'Ei', 'Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f %s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f %s%s" % (num, 'Yi', suffix)
+
+
+for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
+                          locals().items())), key=lambda x: -x[1])[:20]:
+    print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))
