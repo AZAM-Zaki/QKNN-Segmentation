@@ -17,17 +17,17 @@ import time
 
 '''Parameter'''
 #Input and reading section
-train_mask_path = "QKNN-Segmentation\Lite Mask Output/train"
-valid_mask_Path = "QKNN-Segmentation\Lite Mask Output/valid"
-Image_Train_Path = "QKNN-Segmentation\Lite Apple Image/train"
-Image_Valid_Path = "QKNN-Segmentation\Lite Apple Image/valid"
+train_mask_path = "Lite Mask Output/train"
+valid_mask_Path = "Lite Mask Output/valid"
+Image_Train_Path = "Lite Apple Image/train"
+Image_Valid_Path = "Lite Apple Image/valid"
 
 #Creating QKNN Section
 Shot = 500 #number of iteration by quantum executor
 Neighbors = 16 #need to be optimize
 
 #Input data 
-N_Train = 32 
+N_Train = 128 
 N_val = 4
 
 # My Function
