@@ -531,7 +531,7 @@ class QKNeighborsClassifier(QuantumAlgorithm):
             ndarray: The labels resulted from the majority vote.
         """
         print("Doing the majority vote")
-        print("Nilai Fidelities : ", fidelities)
+        print("Fidelities Value is : \n", fidelities)
         
         logger.info("Performing majority vote.")
         # get the neighbors sorted on their distance (lowest first) per data
@@ -548,8 +548,7 @@ class QKNeighborsClassifier(QuantumAlgorithm):
         # get the number of participating values
         n_queries = len(labels)
         
-        print("Sorted neighbors = ",sorted_neighbors,
-              "n_queries", n_queries)
+        print("Sorting fidelities")
 
         # modify the argpartition to remove any "filler" qubits, e.g. if 5
         #  train data are given, n_queries=5 but number of qubits states must
@@ -558,7 +557,7 @@ class QKNeighborsClassifier(QuantumAlgorithm):
         #  must be removed
         sorted_neighbors = sorted_neighbors[sorted_neighbors < n_queries]\
             .reshape(sorted_neighbors.shape[0], n_queries)
-        print("Setelah di reshape ",sorted_neighbors)
+        # print("Setelah di reshape ",sorted_neighbors)
 
         if n_queries == 1:
             n_closest_neighbors = sorted_neighbors[:self.n_neighbors]
@@ -574,6 +573,7 @@ class QKNeighborsClassifier(QuantumAlgorithm):
         else:
             votes, counts = stats.mode(voter_labels, axis=1)
 
+        print("Vote Done!")
         logger.info("Done.")
         return votes.real.flatten()
 

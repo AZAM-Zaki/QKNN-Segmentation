@@ -128,8 +128,10 @@ def construct_circuit(state_to_classify: np.ndarray,
     print("Creating registers and initialise qknn ")
     qknn_circ = initialise_qknn(n, m, state_to_classify)
     # step 2: state trans. (applies oracle)
+    print("State transformation steps >>>> applies oracle")
     qknn_circ = state_transformation(qknn_circ, oracle)
     # step 3: adds the measurement gates
+    print("Add the measurement gates")
     if add_measurement:
         qknn_circ = add_measurements(qknn_circ)
 
@@ -218,6 +220,7 @@ def create_oracle(train_data: Union[List, np.ndarray]) -> qinst.Instruction:
     controlled_inits = [qcirc.ControlledGate] * train_shape[0]
 
     # create an empty circuit with the registers
+    print("Creating Oracle")
     oracle_circ = qk.QuantumCircuit(
         r_train,
         r_comp_basis,
