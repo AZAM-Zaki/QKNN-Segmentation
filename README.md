@@ -1,10 +1,6 @@
 # Qiskit Quantum kNN
 
 
-| <img src="http://logok.org/wp-content/uploads/2014/11/ING_logo.png" width="1000">  | <img src="https://www.ru.nl/views/ru-baseline/images/logos/ru_nl.svg" width="1000"> |
-:---:|:---:
-
-
 [![License](https://img.shields.io/github/license/GroenteLepel/qiskit-quantum-knn)](https://opensource.org/licenses/Apache-2.0)
 [![](https://img.shields.io/github/v/release/GroenteLepel/qiskit-quantum-knn)](https://github.com/GroenteLepel/qiskit-quantum-knn/releases/)
 [![Build Status](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2FGroenteLepel%2Fqiskit-quantum-knn%2Fbadge%3Fref%3Dmaster&style=flat)](https://actions-badge.atrox.dev/GroenteLepel/qiskit-quantum-knn/goto?ref=master)
@@ -20,15 +16,6 @@ Technology. It is build by using [Afham et al. (2020)][afham2020] as it's
 primary guide on how to construct the quantum circuit used for distance
 measurements.
 
-## Installation
-The best way of installing `qiskit-quantum-knn` is by using `pip`:
-
-```bash
-$ pip install qiskit-quantum-knn
-```
-
-Since `qiskit-quantum-knn` runs mainly by using `qiskit`, it is advised to check
-out their [installation guide][3] on how to install Qiskit.
 
 ## License
 [Apache License 2.0](LICENSE.txt)
