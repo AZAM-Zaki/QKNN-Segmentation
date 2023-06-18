@@ -23,12 +23,12 @@ Image_Train_Path = "Lite Apple Image/train"
 Image_Valid_Path = "Lite Apple Image/valid"
 
 #Creating QKNN Section
-Shot = 500 #number of iteration by quantum executor
-Neighbors = 4 #need to be optimize
+Shot = 512 #number of iteration by quantum executor
+Neighbors = 64 #need to be optimize
 
 #Input data 
-N_Train = 16 
-N_val = 2
+N_Train = 2048 
+N_val = 4
 
 # My Function
 def Mask_Reading(PATH):
