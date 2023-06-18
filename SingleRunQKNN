@@ -24,11 +24,11 @@ Image_Valid_Path = "Lite Apple Image/valid"
 
 #Creating QKNN Section
 Shot = 500 #number of iteration by quantum executor
-Neighbors = 16 #need to be optimize
+Neighbors = 4 #need to be optimize
 
 #Input data 
-N_Train = 128 
-N_val = 4
+N_Train = 16 
+N_val = 2
 
 # My Function
 def Mask_Reading(PATH):
@@ -145,6 +145,19 @@ predicted_label = qknn.majority_vote(
 )
 print("Predicted label : ",predicted_label)
 
+
+from datetime import datetime
+now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+with open("Fidelities.txt", "at") as f1:
+    f1.write(f"\n {now} === update ===\n")
+    np.savetxt(f1, MyAutoFidelities, delimiter=';', fmt='%.4f')
+
+with open("PredictionLabel.txt", "at") as f2:
+    f2.write(f"\n {now} === update ===\n")
+    np.savetxt(f2, predicted_label,  delimiter=';', fmt='%.1f')
+
+# np.savetxt(fname = "Fidelities.txt", X = MyAutoFidelities, delimiter=';')
+# np.savetxt(fname = "PredictionLabel.txt", X =predicted_label, delimiter=';',)
 
 '''Evaluation Section'''
 def DICE_COE(Mask, Prediction):
