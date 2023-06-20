@@ -23,12 +23,12 @@ Image_Train_Path = "Lite Apple Image/train"
 Image_Valid_Path = "Lite Apple Image/valid"
 
 #Creating QKNN Section
-Shot = 512 #number of iteration by quantum executor
-Neighbors = 64 #need to be optimize
+Shot = 256 #number of iteration by quantum executor
+Neighbors = 32 #need to be optimize
 
 #Input data 
-N_Train = 2048 
-N_val = 4
+N_Train = 128 
+N_val = 8
 
 # My Function
 def Mask_Reading(PATH):
@@ -89,9 +89,29 @@ x_train = Image_Flattening(Image_Train)
 Image_Valid = Reading_Images(Image_Valid_Path)
 x_valid = Image_Flattening(Image_Valid)
 
+'''Choose 128 sample for training'''
+selected_train_label = []
+selected_x_train = []
+np.random.seed(1)
+random = np.random.choice(14336, size=N_Train, replace=False)
+for index in random:
+  selected_train_label = np.append(selected_train_label,
+                                   train_label[index])
+  selected_x_train = np.append(selected_x_train,
+                               x_train[index,:])
+print(selected_x_train.shape)
+selected_x_train = selected_x_train.reshape(N_Train,3)
 
+selected_valid_label = []
+selected_x_valid = []
+random = np.random.choice(4096, size=N_val, replace=False)
+for index in random:
+  selected_valid_label = np.append(selected_valid_label,
+                                   train_label[index])
+  selected_x_valid = np.append(selected_x_valid,
+                               x_valid[index,:])
+selected_x_valid = selected_x_valid.reshape(N_val,3)
 '''Encoding Section For Input Data to Quantum Circuit'''
-
 
 def encode_pad(data):
 
@@ -109,7 +129,7 @@ def encode_pad(data):
     return encoded_data
 
 
-encoded_x_train = encode_pad(x_train)
+encoded_x_train = encode_pad(selected_x_train)
 encoded_x_valid = encode_pad(x_valid)
 
 # def randomstate():
@@ -144,7 +164,7 @@ predicted_label = qknn.majority_vote(
     fidelities=MyAutoFidelities
 )
 print("Predicted label : ",predicted_label)
-
+print("Real label is", valid_label[:N_val])
 
 from datetime import datetime
 now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')

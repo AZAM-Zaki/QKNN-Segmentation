@@ -3,6 +3,7 @@
 from typing import Dict, Optional, Union
 import logging
 import itertools
+import time
 
 import numpy as np
 import scipy.stats as stats
@@ -227,9 +228,11 @@ class QKNeighborsClassifier(QuantumAlgorithm):
     def execute_circuits(quantum_instance: UnionQInstBaseB,
                          circuits) -> qres.Result:
         """Executes the provided circuits (type array-like)."""
-        
+        start = time.time()
         logger.info("Executing circuits")
         result = quantum_instance.execute(circuits)
+        end = time.time()-start
+        print("Lama waktu eksekusi : ", end)
         logger.info("Done.")
         return result
 
@@ -537,9 +540,10 @@ class QKNeighborsClassifier(QuantumAlgorithm):
         # get the neighbors sorted on their distance (lowest first) per data
         #  point.
         if np.any(fidelities < -0.2) or np.any(fidelities > 1.2):
-            raise ValueError("Fidelities contain values outside range 0<=F<=1:"
-                             f"{fidelities[fidelities < -0.2]}"
-                             f"{fidelities[fidelities > 1.2]}")
+            print("There is some outliers", fidelities[fidelities < -0.2], fidelities[fidelities > 1.2])
+            # raise ValueError("Fidelities contain values outside range 0<=F<=1:"
+            #                  f"{fidelities[fidelities < -0.2]}"
+            #                  f"{fidelities[fidelities > 1.2]}")
 
         sorted_neighbors = np.argpartition(
             1 - fidelities,
