@@ -10,13 +10,18 @@
 **Qiskit Quantum kNN** is a pure quantum knn classifier for a gated quantum
 computer, which is build with [**Qiskit**][qiskit-github].
 
-Qiskit Quantum kNN is made as a final project to fulfill a master's degree
+Qiskit Quantum kNN is made by Daniel J. Kok as a final project to fulfill a master's degree
 at the Radboud University Nijmegen, in collaboration with ING Quantum 
 Technology. It is build by using [Afham et al. (2020)][afham2020] as it's
 primary guide on how to construct the quantum circuit used for distance
 measurements.
 
+The same Quantum KNN program is adapted by Ahmad Zaki Al Muntazhar for doing some experiments about image processing. 
+The program has been used to fulfill the final project of the Undergraduate degree.  
 
+Thank you very much for Daniel who made the complete program and the thesis book. 
+- AZAM
+- 
 ## License
 [Apache License 2.0](LICENSE.txt)
 
