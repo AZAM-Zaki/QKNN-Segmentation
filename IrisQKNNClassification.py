@@ -3,14 +3,9 @@ import qiskit as qk
 from qiskit.utils import QuantumInstance
 from qiskit_quantum_knn.qknn import QKNeighborsClassifier
 from qiskit_quantum_knn.encoding import analog
-from skimage.measure import label, regionprops_table
 import numpy as np
-import cv2
-import glob
 import time
 import pandas as pd
-import math
-from PIL import Image
 from pathlib import Path
 from sklearn import metrics, datasets
 from sklearn.neighbors import KNeighborsClassifier
@@ -28,76 +23,13 @@ Neighbors = 3 #need to be optimize
 
 #Input data 
 Na_Train = 0
-Nb_Train = 127   # max 127
+Nb_Train = 32   # max 127
 Na_val = 0
-Nb_val = 23  # max 23
+Nb_val = 8  # max 23
 
 standarisasi = False
 
-Pengulangan = 2
-
-def ChangeFormat(PATH_START,PATH_GOAL):
-    # PATH = "data uji"
-    files = glob.glob (str(PATH_START)+"/*.gif")
-    print(files)
-    image_array = []
-
-    for myFile in files:
-        img = Image.open(myFile)
-        files_name = (Path(myFile).stem)
-        new_name = f'{PATH_GOAL}/{files_name}.jpg'
-        img.convert('RGB').save(new_name)
-    print('The Image has changed')
-
-def read_image(PATH):
-    files = glob.glob (str(PATH)+"/*.jpg")
-
-    # print(files)
-    print("Jumlah files sebanyak", len(files))
-    image_array = []
-    Files_Name = []
-    #Loop to store the mask to mask array
-    for myFile in files:
-        img = cv2.imread (myFile,0) #0 untuk gray form, sedangkan 1 untuk color form1
-        (thresh, BWmask) = cv2.threshold(img, 127, 1, cv2.THRESH_BINARY) #Store them in Black and White 0-1 form 
-        image_array.append (BWmask) #append each image to array
-        file_name = (Path(myFile).stem)
-        Files_Name.append(file_name)
-
-    return image_array, Files_Name
-
-def ExtractName2Class(FileNames):
-    Class = []
-    for number in range(len(FileNames)):
-        Class.append(FileNames[number].split('-')[0])
-    print('Class has been extracted')
-    return Class
-
-def ExtractProperties(Images):
-     
-    Number_Image = len(Images)
-    print(f"There are {Number_Image} images") 
-    AllRegions = []
-    for number in range(Number_Image):
-        img = Images[number]
-        label_img = label(img)
-        regions = regionprops_table(label_img, img, properties = ['area', 'perimeter', 'eccentricity' ])
-        
-        #Extract to handle eror area
-        regions['area'] = regions['area'][0]
-        regions['perimeter'] = regions['perimeter'][0]
-        regions['eccentricity'] = regions['eccentricity'][0]
-        AllRegions.append(regions)
-    print("Region has got!")
-    return AllRegions
-        # print(TrainImage[number], TrainName[number])
-
-def CalcCircularity(data):
-    #Get The Circularity Value
-    area = data['area']
-    perimeter = data['perimeter']
-    circularity = 4*math.pi*area/np.power(perimeter,2)
-    data.insert(4,"Circularity",circularity, False)
+Pengulangan = 1
 
 def encode_pad(data):
 
